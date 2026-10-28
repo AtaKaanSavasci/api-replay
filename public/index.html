@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>API Replay — Compare responses</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="API Replay home"
+        ><span class="brand-icon" aria-hidden="true">⇄</span
+        ><span>API<span class="brand-light">Replay</span></span></a
+      >
+      <span class="workspace"
+        ><span class="status-dot"></span>Local workspace</span
+      >
+      <a
+        class="source-link"
+        href="https://github.com/AtaKaanSavasci/api-replay"
+        target="_blank"
+        rel="noreferrer"
+        >GitHub <span aria-hidden="true">↗</span></a
+      >
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">YOUR API, BEFORE & AFTER</p>
+          <h1 id="page-title">Spot the difference<span>.</span></h1>
+          <p class="intro-copy">
+            One request. Two environments. Every change, in plain sight.
+          </p>
+        </div>
+        <span class="version-tag">GET / JSON</span>
+      </section>
+
+      <section class="request-panel" aria-labelledby="request-title">
+        <div class="section-heading">
+          <h2 id="request-title">
+            <span class="step">01</span>Set up your request
+          </h2>
+          <button id="example-button" class="text-button" type="button">
+            Load example <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+        <form id="compare-form">
+          <div class="origins">
+            <label for="base"
+              ><span class="field-label"
+                ><span class="environment-dot base-dot"></span>Reference
+                <span class="field-hint">the original API</span></span
+              ><input
+                id="base"
+                name="base"
+                type="url"
+                value="http://127.0.0.1:4010"
+                required
+                spellcheck="false"
+                autocomplete="off"
+            /></label>
+            <span class="connection-arrow" aria-hidden="true">→</span>
+            <label for="target"
+              ><span class="field-label"
+                ><span class="environment-dot target-dot"></span>Target
+                <span class="field-hint">the updated API</span></span
+              ><input
+                id="target"
+                name="target"
+                type="url"
+                value="http://127.0.0.1:4011"
+                required
+                spellcheck="false"
+                autocomplete="off"
+            /></label>
+          </div>
+          <label class="endpoint-label" for="path">Endpoint path</label>
+          <div class="request-row">
+            <div class="endpoint-input">
+              <span class="method">GET</span
+              ><input
+                id="path"
+                name="path"
+                type="text"
+                value="/equipment/1"
+                required
+                pattern="/.*"
+                spellcheck="false"
+                autocomplete="off"
+                aria-label="Endpoint path"
+              />
+            </div>
+            <button id="compare-button" class="primary-button" type="submit">
+              <span id="compare-label">Compare responses</span
+              ><span class="button-arrow" aria-hidden="true">→</span>
+            </button>
+          </div>
+          <p class="form-note">
+            Use an origin for each environment, then a shared path. For the
+            local demo, start <code>npm run demo</code> in another terminal.
+          </p>
+        </form>
+      </section>
+
+      <div id="error-panel" class="error-panel" role="alert" hidden>
+        <span aria-hidden="true">!</span>
+        <div>
+          <strong>Couldn't complete the comparison</strong>
+          <p id="error-message"></p>
+          <p class="error-hint">
+            Check that both API servers are running and the endpoint returns
+            JSON.
+          </p>
+        </div>
+      </div>
+      <p id="live-status" class="sr-only" role="status" aria-live="polite"></p>
+
+      <section
+        id="results"
+        class="results"
+        aria-labelledby="result-title"
+        hidden
+      >
+        <div class="results-heading">
+          <div>
+            <p class="eyebrow">
+              COMPARISON RESULTS
+              <span id="result-mode" class="mode-tag">EXAMPLE</span>
+            </p>
+            <h2 id="result-title">3 changes found</h2>
+            <p id="result-caption" class="result-caption">
+            Built-in sample. No API requests are made for this example.
+            </p>
+          </div>
+          <button id="export-button" class="secondary-button" type="button">
+            Export JSON <span aria-hidden="true">↓</span>
+          </button>
+        </div>
+        <div class="summary-grid" aria-label="Change counts">
+          <div class="summary added">
+            <span class="summary-icon" aria-hidden="true">+</span>
+            <div><strong id="added-count">0</strong><span>Added</span></div>
+            <p>New in the target</p>
+          </div>
+          <div class="summary removed">
+            <span class="summary-icon" aria-hidden="true">−</span>
+            <div><strong id="removed-count">0</strong><span>Removed</span></div>
+            <p>Missing from the target</p>
+          </div>
+          <div class="summary changed">
+            <span class="summary-icon" aria-hidden="true">~</span>
+            <div><strong id="changed-count">0</strong><span>Changed</span></div>
+            <p>A different value or status</p>
+          </div>
+        </div>
+        <div id="http-warning" class="http-warning" role="note" hidden></div>
+        <div class="diff-panel">
+          <div class="diff-toolbar">
+            <div class="filters" role="group" aria-label="Filter changes">
+              <button type="button" data-filter="all" aria-pressed="true">
+                All changes <span id="all-count">0</span></button
+              ><button type="button" data-filter="added" aria-pressed="false">
+                Added</button
+              ><button type="button" data-filter="removed" aria-pressed="false">
+                Removed</button
+              ><button type="button" data-filter="changed" aria-pressed="false">
+                Changed
+              </button>
+            </div>
+            <span class="diff-format">FIELD DIFF</span>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Change</th>
+                  <th scope="col">Field</th>
+                  <th scope="col">
+                    Reference
+                    <span id="base-status" class="http-status">200</span>
+                  </th>
+                  <th scope="col">
+                    Target
+                    <span id="target-status" class="http-status">200</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="diff-body"></tbody>
+            </table>
+          </div>
+          <div id="empty-state" class="empty-state" hidden>
+            <span id="empty-symbol" aria-hidden="true">✓</span>
+            <h3 id="empty-title">Responses match</h3>
+            <p id="empty-description">
+              The HTTP status and JSON body are identical.
+            </p>
+          </div>
+          <div class="diff-footer">
+            <span id="shown-count">3 changes shown</span
+            ><span><span class="status-dot"></span>Compared locally</span>
+          </div>
+        </div>
+        <details class="response-details">
+          <summary>
+            Inspect full responses <span aria-hidden="true">↗</span>
+          </summary>
+          <div class="response-grid">
+            <section>
+              <h3>Reference</h3>
+              <p id="base-url" class="response-url"></p>
+              <pre
+                id="base-body"
+                tabindex="0"
+                aria-label="Reference JSON response"
+              ></pre>
+            </section>
+            <section>
+              <h3>Target</h3>
+              <p id="target-url" class="response-url"></p>
+              <pre
+                id="target-body"
+                tabindex="0"
+                aria-label="Target JSON response"
+              ></pre>
+            </section>
+          </div>
+        </details>
+      </section>
+      <footer class="page-footer">
+        <span
+          >Different doesn't always mean broken. Review changes against your
+          API's intended behavior.</span
+        ><span>GET + JSON · 5 s timeout · Ordered arrays</span>
+      </footer>
+    </main>
+  </body>
+</html>

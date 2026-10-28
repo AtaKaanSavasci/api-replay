@@ -2,6 +2,14 @@
 
 The first goal is to send the same GET request to two environments and report how their responses differ. This version does not record traffic: you provide the request path explicitly.
 
+## Using the browser interface
+
+Run `npm run ui` from the project directory and open `http://127.0.0.1:4173`. The first screen displays a labeled example; it does not make requests to the example API addresses. **Load example** restores those sample addresses and results.
+
+To make real requests, start `npm run demo` in another terminal and select **Compare responses**. The result label changes to **LIVE RESULT**. Green additions appear only in the target, red removals appear only in the reference, and amber changes have different values or status codes. Filters select a category, **Inspect full responses** expands the underlying JSON, and **Export JSON** downloads the result.
+
+The browser does not contact the APIs directly. It sends the form to `POST /api/compare` on the local server in `src/ui-server.ts`. That server calls the same `compareApis` function as the CLI. `public/app.js` builds the result display using text content, so API field names and values are displayed as text rather than interpreted as HTML.
+
 ## How the tool works
 
 ```text
