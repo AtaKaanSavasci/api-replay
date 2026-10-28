@@ -66,11 +66,15 @@ export async function compareApis(base: string, target: string, path: string): P
   const [baseResult, targetResult] = await Promise.all([
     fetchJson(baseUrl), fetchJson(targetUrl),
   ]);
-  const differences = diffJson(baseResult.body, targetResult.body);
+  return compareSnapshots(baseResult, targetResult);
+}
+
+export function compareSnapshots(base: Snapshot, target: Snapshot): Comparison {
+  const differences = diffJson(base.body, target.body);
   return {
-    base: baseResult,
-    target: targetResult,
+    base,
+    target,
     differences,
-    matches: baseResult.status === targetResult.status && differences.length === 0,
+    matches: base.status === target.status && differences.length === 0,
   };
 }

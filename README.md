@@ -2,7 +2,7 @@
 
 Compare the HTTP status and JSON body of the same GET request across two API environments.
 
-Version **0.1.0** is a small TypeScript CLI. Define the request with command-line arguments; traffic recording and request collections are future work.
+A small TypeScript tool with a local browser interface and a CLI. Compare one GET request at a time; traffic recording and request collections are future work.
 
 Use it after a backend change to see which response fields were added, removed or changed. Review those observations alongside your tests; a difference alone does not prove that a change breaks clients.
 
@@ -17,6 +17,38 @@ cd api-replay
 
 ```sh
 npm ci
+npm run ui
+```
+
+Open **http://127.0.0.1:4173**. A clearly labeled built-in example shows added, removed and changed fields without starting any API servers. Enter your own API origins and endpoint path, then select **Compare responses** for a live comparison.
+
+- Green **+ Added**: fields present only in the target.
+- Red **− Removed**: fields missing from the target.
+- Amber **~ Changed**: values or HTTP status codes that differ.
+- Filter changes, expand full JSON responses, or export the comparison as JSON. Exported examples are labeled `"example": true`.
+
+The UI runs locally, binds to `127.0.0.1` and sends no comparison data to an external service other than the API origins you enter. The local Node.js server makes those API requests. Authentication headers are not supported yet.
+
+To try a live comparison with the included demo APIs, keep the UI terminal open and run this in a second terminal **from the project directory**:
+
+```sh
+npm run demo
+```
+
+The default form values point to these demo servers. Compare `/equipment/1` for differences or `/health` for a match. Stop each server with Ctrl+C.
+
+If port 4173 is in use, set `UI_PORT` before starting the UI. In PowerShell:
+
+```powershell
+$env:UI_PORT = '4174'
+npm run ui
+```
+
+## Terminal usage
+
+For the CLI, build the project and start the demo APIs:
+
+```sh
 npm run build
 npm run demo
 ```
@@ -87,6 +119,9 @@ src/cli.ts      Arguments, terminal output, exit codes
 src/compare.ts  URLs, HTTP requests, response comparison
 src/diff.ts     Recursive JSON comparison; no network or terminal access
 src/demo.ts     Two small local API servers
+src/ui.ts       Local browser interface entry point
+src/ui-server.ts Local HTTP server and comparison endpoints
+public/        Browser HTML, CSS and JavaScript
 test/          Comparison and CLI integration tests
 docs/learning.md           Walkthrough and exercises
 docs/real-api-comparison.md Real API comparison plan and limitations
