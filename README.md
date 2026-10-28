@@ -112,7 +112,18 @@ npm test
 npm run compare -- --help
 ```
 
-`npm test` compiles TypeScript and runs unit and local HTTP integration tests using Node's test runner. Rebuild after changing source files before running `compare` or `demo` directly. There are no production package dependencies.
+`npm test` compiles TypeScript and runs unit, behavior-contract and local HTTP integration tests using Node's test runner. Rebuild after changing source files before running `compare` or `demo` directly. There are no production package dependencies.
+
+Install the test browser once, then run the complete browser and behavior checks:
+
+```sh
+npx playwright install chromium
+npm run test:all
+```
+
+`npm run test:e2e` tests the complete UI against real local HTTP fixtures in desktop and mobile Chromium viewports. Each test starts its own servers on available ports, so no demo servers or live accounts are needed. `npm run test:mutations` verifies that behavior tests reject four deliberately broken copies of the comparison engine. These copies never replace the application code.
+
+Open the detailed browser report with `npx playwright show-report`. See [Testing and intended behavior](docs/testing.md) for the contract, coverage and limitations.
 
 ```text
 src/cli.ts      Arguments, terminal output, exit codes
@@ -123,6 +134,8 @@ src/ui.ts       Local browser interface entry point
 src/ui-server.ts Local HTTP server and comparison endpoints
 public/        Browser HTML, CSS and JavaScript
 test/          Comparison and CLI integration tests
+e2e/           Browser end-to-end tests and isolated HTTP fixtures
+scripts/       Targeted mutation checks
 docs/learning.md           Walkthrough and exercises
 docs/real-api-comparison.md Real API comparison plan and limitations
 ```
@@ -135,7 +148,7 @@ docs/real-api-comparison.md Real API comparison plan and limitations
 4. Export a readable HTML report.
 5. Run API comparisons in CI against controlled environments.
 
-Repository CI runs the tool's own tests on Linux and Windows. Comparing a user's API in CI is a separate future feature.
+Repository CI runs unit/HTTP tests on Linux and Windows, plus browser E2E and targeted mutation checks on Linux. Browser reports are saved as CI artifacts. Comparing a user's API in CI is a separate future feature.
 
 ## References
 

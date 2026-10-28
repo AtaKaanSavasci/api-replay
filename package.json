@@ -12,9 +12,13 @@
     "compare": "node dist/src/cli.js",
     "demo": "node dist/src/demo.js",
     "ui": "npm run build && node dist/src/ui.js",
-    "test": "npm run build && node --test dist/test/*.test.js"
+    "test": "npm run build && node --test dist/test/*.test.js",
+    "test:e2e": "npm run build && tsc -p tsconfig.e2e.json && playwright test",
+    "test:mutations": "npm run build && node scripts/check-mutations.mjs",
+    "test:all": "npm test && npm run test:e2e && npm run test:mutations"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@types/node": "^22.20.5",
     "typescript": "^7.0.2"
   }
